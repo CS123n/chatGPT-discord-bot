@@ -13,6 +13,7 @@ def run_discord_bot():
     async def on_ready():
         await client.send_start_prompt()
         await client.tree.sync()
+        client.loop.create_task(client.process_messages())
         logger.info(f'{client.user} is now running!')
 
     @client.tree.command(name="chat", description="Have a chat with ChatGPT")
@@ -29,7 +30,7 @@ def run_discord_bot():
         channel = str(interaction.channel)
         logger.info(
             f"\x1b[31m{username}\x1b[0m : /chat [{message}] in ({channel})")
-        await client.send_message(interaction, message)
+        await client.enqueue_message(interaction, message)
 
 
     @client.tree.command(name="private", description="Toggle private access")
@@ -134,9 +135,7 @@ def run_discord_bot():
             client.chatbot = client.get_chatbot_model()
             await client.send_start_prompt()
         elif client.chat_model == "Bing":
-            await client.chatbot.close()
-            client.chatbot = client.get_chatbot_model()
-            await client.send_start_prompt()
+            await client.chatbot.reset()
         await interaction.followup.send("> **INFO: I have forgotten everything.**")
         personas.current_persona = "standard"
         logger.warning(
@@ -289,7 +288,7 @@ https://github.com/Zero6992/chatGPT-discord-bot""")
                     user_message = str(message.content)
                     channel = str(message.channel)
                     logger.info(f"\x1b[31m{username}\x1b[0m : '{user_message}' ({channel})")
-                    await client.send_message(message, user_message)
+                    await client.enqueue_message(message, user_message)
             else:
                 logger.exception("replying_all_discord_channel_id not found, please use the commnad `/replyall` again.")
 

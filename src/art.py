@@ -8,6 +8,9 @@ from dotenv import load_dotenv
 from asgiref.sync import sync_to_async
 
 load_dotenv()
+openai.api_type = "azure"
+openai.api_base = "https://test11112312.openai.azure.com/"
+openai.api_version = "2023-05-15"
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
 
